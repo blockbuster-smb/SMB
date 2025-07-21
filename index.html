@@ -412,6 +412,7 @@
     }
 
     function renderPage(page) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       const tableBody = document.getElementById("tableBody");
       tableBody.innerHTML = "";
 
