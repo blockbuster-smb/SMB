@@ -16,21 +16,21 @@
       font-weight: 700;
     }
 
-header {
-  background-color: #1f2937;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  position: fixed; /* заменено */
-  top: 0;          /* добавлено */
-  left: 0;         /* добавлено */
-  right: 0;        /* добавлено */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  user-select: none;
-  z-index: 1000;
-}
+    header {
+      background-color: #1f2937;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      user-select: none;
+      z-index: 1000;
+    }
 
     .logo img {
       width: 40px;
@@ -88,16 +88,17 @@ header {
       background-color: #374151;
     }
 
-#app-content {
-  width: 96%;
-  max-width: 1600px;
-  margin: 20px auto 40px;
-  padding: 60px 5px 10px 5px; /* добавлен padding-top 60px */
-  box-sizing: border-box;
-  background: transparent; /* убрали белый фон */
-  border-radius: 0;
-  box-shadow: none; /* убрали тень */
-}
+    #app-content {
+      width: 96%;
+      max-width: 1600px;
+      margin: 20px auto 40px;
+      padding: 60px 5px 10px 5px;
+      box-sizing: border-box;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      overflow-x: auto; /* Добавлено для предотвращения выхода контента */
+    }
 
     table {
       width: 100%;
@@ -106,14 +107,13 @@ header {
     }
 
     th, td {
-      padding: 0px 0px;
+      padding: 6px 8px;
       text-align: center;
       font-weight: 700;
       word-wrap: break-word;
       white-space: normal;
-      font-size: clamp(10px, 2.5vw, 20px);
+      font-size: clamp(10px, 2.5vw, 12px);
     }
-
 
     thead th {
       background-color: #1a2f40;
@@ -215,7 +215,7 @@ header {
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         padding: 12px;
-        box-sizing: border-box;
+        box-sizing: border-box; /* Добавлено */
         user-select: none;
       }
 
@@ -240,9 +240,11 @@ header {
         text-align: left;
         white-space: normal;
         font-size: 13px;
+        box-sizing: border-box; /* Добавлено */
       }
 
       tbody td:last-child {
+        padding-right: 0; /* Убираем правый padding, чтобы линии не вылазили */
         border-bottom: none;
       }
 
