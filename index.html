@@ -1,315 +1,327 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BLOCKBUSTER</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SMART MAINTENANCE BOWLING</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-    body, html {
-      margin: 0; padding: 0;
-      font-family: "Poppins", sans-serif;
-      background-color: #f4f6f9;
-      color: #1a2f40;
-      font-size: clamp(10px, 3vw, 14px);
-      font-weight: 700;
-    }
+  body, html {
+    margin: 0; padding: 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #f4f6f9;
+    color: #1a2f40;
+    font-size: clamp(10px, 3vw, 14px);
+    font-weight: 700;
+  }
 
-    header {
-      background-color: #1f2937;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      position: relative;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      user-select: none;
-      z-index: 1000;
-    }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 10px;
+    box-sizing: border-box;
+    position: relative;
+  }
 
-    .logo img {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 6px;
-    }
+  header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1600px;
+    background-color: #1f2937;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 1000;
+  }
 
-    .site-name {
-      flex: 1;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      color: white;
-    }
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
 
-    .menu-button {
-      width: 30px;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 20px;
-    }
+  .logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
 
-    .menu-button div {
-      height: 4px;
-      background-color: white;
-      border-radius: 2px;
-    }
+  .site-name {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    flex-grow: 1;
+  }
 
-    .dropdown {
+  .menu-button {
+    cursor: pointer;
+    width: 30px;
+    height: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .menu-button div {
+    height: 4px;
+    background-color: white;
+    border-radius: 2px;
+  }
+
+  .dropdown {
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    background-color: white;
+    color: #1f2937;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    z-index: 999;
+  }
+
+  .dropdown a {
+    padding: 12px 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.2s;
+  }
+
+  .dropdown a:hover {
+    background-color: #f0f0f0;
+  }
+
+  /* Отступ чтобы контент не был под шапкой */
+  #app-content {
+    margin-top: 60px; /* высота шапки */
+    width: 100%;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    table-layout: fixed;
+  }
+
+  th, td {
+    padding: 6px 8px;
+    text-align: center;
+    font-weight: 700;
+    word-wrap: break-word;
+    white-space: normal;
+    font-size: clamp(10px, 2.5vw, 12px);
+  }
+
+  thead th {
+    background-color: #1a2f40;
+    color: white;
+    cursor: pointer;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: #eef2f7;
+  }
+
+  tbody tr:hover {
+    background-color: #dde2eb;
+  }
+
+  .schema-button {
+    background-color: #1a2f40;
+    color: white;
+    padding: 4px 6px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: clamp(9px, 2.5vw, 12px);
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  select, button {
+    font-size: clamp(9px, 2.5vw, 12px);
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  button {
+    background-color: #dc143c;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background-color: #a90e2e;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  #pageNumbers button {
+    background-color: #dc143c;
+    color: white;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  #pageNumbers button.active {
+    background-color: #1a2f40;
+  }
+
+  .highlight {
+    background-color: #dc143c !important;
+    color: white !important;
+  }
+
+  /* Скрываем кнопку "Открыть" в последнем столбце на десктопе */
+  @media (min-width: 769px) {
+    .buttons-row .schema-button {
       display: none;
-      flex-direction: column;
-      position: absolute;
-      top: 60px;
-      right: 20px;
-      background-color: #1f2937;
-      border: 1px solid #444;
-      border-radius: 8px;
-      overflow: hidden;
-      z-index: 9999;
-      min-width: 150px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+      display: block;
+      width: 100%;
     }
 
-    .dropdown a {
-      padding: 10px 15px;
-      text-decoration: none;
-      color: white;
-      transition: background 0.3s;
-      user-select: none;
+    thead tr {
+      display: none;
     }
 
-    .dropdown a:hover {
-      background-color: #374151;
-    }
-
-    #app-content {
-      width: 96%;
-      max-width: 1600px;
-      margin: 20px auto 40px;
-      padding: 10px 5px;
-      box-sizing: border-box;
+    tbody tr {
+      margin-bottom: 20px;
       background: white;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
-    }
-
-    th, td {
-      padding: 6px 8px;
-      text-align: center;
-      font-weight: 700;
-      word-wrap: break-word;
-      white-space: normal;
-      font-size: clamp(10px, 2.5vw, 12px);
-    }
-
-    thead th {
-      background-color: #1a2f40;
-      color: white;
-      cursor: pointer;
+      padding: 12px;
+      box-sizing: border-box;
       user-select: none;
     }
 
     tbody tr:nth-child(even) {
-      background-color: #eef2f7;
+      background-color: white;
     }
 
     tbody tr:hover {
-      background-color: #dde2eb;
+      background-color: white;
     }
 
-    .schema-button {
-      background-color: #1a2f40;
-      color: white;
-      padding: 4px 6px;
+    tbody td:nth-child(1) {
+      display: none;
+    }
+
+    tbody td {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-bottom: 1px solid #ddd;
       font-weight: 700;
+      text-align: left;
+      white-space: normal;
+      font-size: 13px;
+    }
+
+    tbody td:last-child {
+      border-bottom: none;
+    }
+
+    tbody td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      color: #1a2f40;
+      flex-basis: 40%;
+      max-width: 40%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    tbody td[data-label="ОТПРАВИТЬ"]::before {
+      content: none !important;
+    }
+
+    select, button, .schema-button {
+      font-size: 13px;
+      padding: 5px 8px;
+      font-weight: 700;
+    }
+
+    tbody tr > td:last-child {
+      padding: 0;
       border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: clamp(9px, 2.5vw, 12px);
-      text-decoration: none;
+    }
+
+    tbody tr > td:last-child .buttons-row {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 10px;
+      gap: 10px;
+    }
+
+    tbody tr > td:last-child .buttons-row .schema-button {
+      flex: 1;
+      max-width: 48%;
+      padding: 8px 10px;
+      text-align: center;
       display: inline-block;
     }
 
-    select, button {
-      font-size: clamp(9px, 2.5vw, 12px);
-      padding: 4px 6px;
-      border-radius: 4px;
+    tbody tr > td:last-child .buttons-row button {
+      flex: 1;
+      max-width: 48%;
+      padding: 8px 10px;
       font-weight: 700;
+      display: inline-block;
     }
 
-    button {
-      background-color: #dc143c;
-      color: white;
-      border: none;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    button:hover {
-      background-color: #a90e2e;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 15px;
-      gap: 10px;
-      flex-wrap: wrap;
-      user-select: none;
-    }
-
-    #pageNumbers button {
-      background-color: #dc143c;
-      color: white;
+    tbody tr > td:last-child .buttons-row span.sent-text {
+      flex: 1;
+      max-width: 48%;
+      padding: 8px 10px;
       font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
+      color: #444;
+      text-align: center;
+      display: inline-block;
     }
-
-    #pageNumbers button.active {
-      background-color: #1a2f40;
-    }
-
-    .highlight {
-      background-color: #dc143c !important;
-      color: white !important;
-    }
-
-    /* Скрываем кнопку "Открыть" на десктопе */
-    @media (min-width: 769px) {
-      .buttons-row .schema-button {
-        display: none;
-      }
-    }
-
-    /* Мобильная версия таблицы */
-    @media (max-width: 768px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-        width: 100%;
-      }
-
-      thead tr {
-        display: none;
-      }
-
-      tbody tr {
-        margin-bottom: 20px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        padding: 12px;
-        box-sizing: border-box;
-        user-select: none;
-      }
-
-      tbody tr:nth-child(even) {
-        background-color: white;
-      }
-
-      tbody tr:hover {
-        background-color: white;
-      }
-
-      tbody td:nth-child(1) {
-        display: none;
-      }
-
-      tbody td {
-        display: flex;
-        justify-content: space-between;
-        padding: 6px 8px;
-        border-bottom: 1px solid #ddd;
-        font-weight: 700;
-        text-align: left;
-        white-space: normal;
-        font-size: 13px;
-      }
-
-      tbody td:last-child {
-        border-bottom: none;
-      }
-
-      tbody td::before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: #1a2f40;
-        flex-basis: 40%;
-        max-width: 40%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      tbody td[data-label="ОТПРАВИТЬ"]::before {
-        content: none !important;
-      }
-
-      select, button, .schema-button {
-        font-size: 13px;
-        padding: 5px 8px;
-        font-weight: 700;
-      }
-
-      tbody tr > td:last-child {
-        padding: 0;
-        border: none;
-      }
-
-      tbody tr > td:last-child .buttons-row {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-top: 10px;
-        gap: 10px;
-      }
-
-      tbody tr > td:last-child .buttons-row .schema-button {
-        flex: 1;
-        max-width: 48%;
-        padding: 8px 10px;
-        text-align: center;
-        display: inline-block;
-      }
-
-      tbody tr > td:last-child .buttons-row button {
-        flex: 1;
-        max-width: 48%;
-        padding: 8px 10px;
-        font-weight: 700;
-        display: inline-block;
-      }
-
-      tbody tr > td:last-child .buttons-row span.sent-text {
-        flex: 1;
-        max-width: 48%;
-        padding: 8px 10px;
-        font-weight: 700;
-        color: #444;
-        text-align: center;
-        display: inline-block;
-      }
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
+
+<div class="container">
+
   <header>
     <div class="logo">
       <img src="https://i.postimg.cc/wjGzSY92/1.png" alt="Logo">
     </div>
-    <div class="site-name">BLOCKBUSTER</div>
+    <div class="site-name">SMART MAINTENANCE BOWLING</div>
     <div class="menu-button" onclick="toggleDropdown()">
       <div></div>
       <div></div>
@@ -323,7 +335,7 @@
     </div>
   </header>
 
-  <div id="app-content" style="display:none;">
+  <div id="app-content" style="margin-top: 60px;">
     <table>
       <thead>
         <tr>
@@ -346,209 +358,219 @@
     </div>
   </div>
 
-  <script>
-    function toggleDropdown() {
-      const menu = document.getElementById("dropdownMenu");
-      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
+</div>
+
+<script>
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec';
+
+  let fullData = [];
+  let currentPage = 1;
+  const rowsPerPage = 20;
+
+  let activeSearchColumn = null;
+  let activeSearchText = "";
+
+  window.onload = function () {
+    document.getElementById("app-content").style.display = "block";
+    loadSheetData();
+  };
+
+  function toggleDropdown() {
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+  }
+
+  window.onclick = function(event) {
+    const dropdown = document.getElementById('dropdownMenu');
+    const menuButton = document.querySelector('.menu-button');
+    if (!menuButton.contains(event.target) && !dropdown.contains(event.target)) {
+      dropdown.style.display = 'none';
     }
+  }
 
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec';
-
-    let fullData = [];
-    let currentPage = 1;
-    const rowsPerPage = 20;
-
-    let activeSearchColumn = null;
-    let activeSearchText = "";
-
-    window.onload = function () {
-      document.getElementById("app-content").style.display = "block";
-      loadSheetData();
-    };
-
-    async function loadSheetData() {
-      try {
-        const response = await fetch(`${GAS_URL}?action=getData`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        fullData = await response.json();
-        if (fullData.length === 0) {
-          document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Нет задач</td></tr>";
-          return;
-        }
-        renderPage(currentPage);
-      } catch (e) {
-        document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Ошибка загрузки данных</td></tr>";
-        console.error(e);
-      }
-    }
-
-    async function updateSheet(rowNumber, doneByValue, breakdownValue) {
-      try {
-        const params = new URLSearchParams({
-          action: 'update',
-          rowNumber,
-          doneByValue,
-          breakdownValue
-        });
-        const response = await fetch(`${GAS_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const updatedRow = await response.json();
-
-        const index = fullData.findIndex(row => row[0] === rowNumber);
-        if (index !== -1) {
-          fullData[index] = updatedRow;
-        }
-        renderPage(currentPage);
-      } catch (e) {
-        alert('Ошибка при обновлении данных');
-        console.error(e);
-      }
-    }
-
-    function renderPage(page) {
-      const tableBody = document.getElementById("tableBody");
-      tableBody.innerHTML = "";
-
-      const start = (page - 1) * rowsPerPage;
-      const end = start + rowsPerPage;
-      const pageData = fullData.slice(start, end);
-
-      pageData.forEach((row) => {
-        const tr = document.createElement("tr");
-
-        const schemaLink = row[2]
-          ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
-          : "";
-
-        tr.innerHTML = `
-          <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button">Открыть</button>` : "Нет схемы"}</td>
-          <td data-label="МАШИНА">${row[1]}</td>
-          <td data-label="ОТКРЫТА">${row[3]}</td>
-          <td data-label="ЗАКРЫТА">${row[4]}</td>
-          ${row[6]
-            ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
-            : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
-                <select id="i_${row[0]}">
-                  <option value="" selected disabled></option>
-                  <option value="ЕСТЬ">ЕСТЬ</option>
-                  <option value="НЕТ">НЕТ</option>
-                </select>
-              </td>`
-          }
-          ${row[5]
-            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
-            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
-                <select id="g_${row[0]}">
-                  <option value="" selected disabled></option>
-                  <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
-                  <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
-                </select>
-              </td>`
-          }
-          <td data-label="ОТПРАВИТЬ">
-            <div class="buttons-row">
-              ${schemaLink}
-              ${row[5] && row[6]
-                ? `<span class="sent-text">Отправлено</span>`
-                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`
-              }
-            </div>
-          </td>`;
-
-        tableBody.appendChild(tr);
-      });
-
-      applyHighlight();
-      renderPageNumbers();
-
-      document.getElementById("prevBtn").disabled = currentPage === 1;
-      document.getElementById("nextBtn").disabled = currentPage * rowsPerPage >= fullData.length;
-    }
-
-    function renderPageNumbers() {
-      const pageContainer = document.getElementById("pageNumbers");
-      pageContainer.innerHTML = "";
-
-      const totalPages = Math.ceil(fullData.length / rowsPerPage);
-      let startPage = Math.max(currentPage - 2, 1);
-      let endPage = Math.min(startPage + 4, totalPages);
-
-      if (endPage - startPage < 4) {
-        startPage = Math.max(endPage - 4, 1);
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        if (i === currentPage) btn.classList.add("active");
-        btn.onclick = () => {
-          currentPage = i;
-          renderPage(currentPage);
-        };
-        pageContainer.appendChild(btn);
-      }
-    }
-
-    function nextPage() {
-      if (currentPage * rowsPerPage < fullData.length) {
-        currentPage++;
-        renderPage(currentPage);
-      }
-    }
-
-    function prevPage() {
-      if (currentPage > 1) {
-        currentPage--;
-        renderPage(currentPage);
-      }
-    }
-
-    function validateAndSend(rowNumber) {
-      const gSelect = document.getElementById(`g_${rowNumber}`);
-      const iSelect = document.getElementById(`i_${rowNumber}`);
-      const btn = document.getElementById(`btn_${rowNumber}`);
-
-      if (!gSelect || !iSelect || !gSelect.value || !iSelect.value) {
-        alert("Заполните все формы!");
+  async function loadSheetData() {
+    try {
+      const response = await fetch(`${GAS_URL}?action=getData`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      fullData = await response.json();
+      if (fullData.length === 0) {
+        document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Нет задач</td></tr>";
         return;
       }
-
-      updateSheet(rowNumber, gSelect.value, iSelect.value);
-
-      btn.outerHTML = `<span class="sent-text">Отправлено</span>`;
+      renderPage(currentPage);
+    } catch (e) {
+      document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Ошибка загрузки данных</td></tr>";
+      console.error(e);
     }
+  }
 
-    function startColumnSearch(columnIndex) {
-      const searchText = prompt("Введите текст для поиска:");
-      if (searchText === null || searchText.trim() === "") {
-        activeSearchColumn = null;
-        activeSearchText = "";
-      } else {
-        activeSearchColumn = columnIndex;
-        activeSearchText = searchText.trim().toLowerCase();
+  async function updateSheet(rowNumber, doneByValue, breakdownValue) {
+    try {
+      const params = new URLSearchParams({
+        action: 'update',
+        rowNumber,
+        doneByValue,
+        breakdownValue
+      });
+      const response = await fetch(`${GAS_URL}?${params.toString()}`);
+      if (!response.ok) throw new Error('Network response was not ok');
+      const updatedRow = await response.json();
+
+      const index = fullData.findIndex(row => row[0] === rowNumber);
+      if (index !== -1) {
+        fullData[index] = updatedRow;
       }
       renderPage(currentPage);
+    } catch (e) {
+      alert('Ошибка при обновлении данных');
+      console.error(e);
+    }
+  }
+
+  function renderPage(page) {
+    const tableBody = document.getElementById("tableBody");
+    tableBody.innerHTML = "";
+
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const pageData = fullData.slice(start, end);
+
+    pageData.forEach((row) => {
+      const tr = document.createElement("tr");
+
+      const schemaLink = row[2]
+        ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
+        : "";
+
+      tr.innerHTML = `
+        <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button">Открыть</button>` : "Нет схемы"}</td>
+        <td data-label="МАШИНА">${row[1]}</td>
+        <td data-label="ОТКРЫТА">${row[3]}</td>
+        <td data-label="ЗАКРЫТА">${row[4]}</td>
+        ${row[6]
+          ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
+          : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
+              <select id="i_${row[0]}">
+                <option value="" selected disabled></option>
+                <option value="ЕСТЬ">ЕСТЬ</option>
+                <option value="НЕТ">НЕТ</option>
+              </select>
+            </td>`
+        }
+        ${row[5]
+          ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
+          : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
+              <select id="g_${row[0]}">
+                <option value="" selected disabled></option>
+                <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
+                <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
+              </select>
+            </td>`
+        }
+        <td data-label="ОТПРАВИТЬ">
+          <div class="buttons-row">
+            ${schemaLink}
+            ${row[5] && row[6]
+              ? `<span class="sent-text">Отправлено</span>`
+              : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`
+            }
+          </div>
+        </td>`;
+
+      tableBody.appendChild(tr);
+    });
+
+    applyHighlight();
+    renderPageNumbers();
+
+    document.getElementById("prevBtn").disabled = currentPage === 1;
+    document.getElementById("nextBtn").disabled = currentPage * rowsPerPage >= fullData.length;
+  }
+
+  function renderPageNumbers() {
+    const pageContainer = document.getElementById("pageNumbers");
+    pageContainer.innerHTML = "";
+
+    const totalPages = Math.ceil(fullData.length / rowsPerPage);
+    let startPage = Math.max(currentPage - 2, 1);
+    let endPage = Math.min(startPage + 4, totalPages);
+
+    if (endPage - startPage < 4) {
+      startPage = Math.max(endPage - 4, 1);
     }
 
-    function applyHighlight() {
-      if (activeSearchColumn === null || activeSearchText === "") return;
+    for (let i = startPage; i <= endPage; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add("active");
+      btn.onclick = () => {
+        currentPage = i;
+        renderPage(currentPage);
+      };
+      pageContainer.appendChild(btn);
+    }
+  }
 
-      const tableBody = document.getElementById("tableBody");
-      const rows = tableBody.getElementsByTagName("tr");
+  function nextPage() {
+    if (currentPage * rowsPerPage < fullData.length) {
+      currentPage++;
+      renderPage(currentPage);
+    }
+  }
 
-      for (let row of rows) {
-        const cells = row.getElementsByTagName("td");
-        if (cells.length > activeSearchColumn) {
-          const cell = cells[activeSearchColumn];
-          const text = cell.textContent || cell.innerText;
-          if (text.toLowerCase().includes(activeSearchText)) {
-            cell.classList.add("highlight");
-          } else {
-            cell.classList.remove("highlight");
-          }
+  function prevPage() {
+    if (currentPage > 1) {
+      currentPage--;
+      renderPage(currentPage);
+    }
+  }
+
+  function validateAndSend(rowNumber) {
+    const gSelect = document.getElementById(`g_${rowNumber}`);
+    const iSelect = document.getElementById(`i_${rowNumber}`);
+    const btn = document.getElementById(`btn_${rowNumber}`);
+
+    if (!gSelect || !iSelect || !gSelect.value || !iSelect.value) {
+      alert("Заполните все формы!");
+      return;
+    }
+
+    updateSheet(rowNumber, gSelect.value, iSelect.value);
+
+    btn.outerHTML = `<span class="sent-text">Отправлено</span>`;
+  }
+
+  function startColumnSearch(columnIndex) {
+    const searchText = prompt("Введите текст для поиска:");
+    if (searchText === null || searchText.trim() === "") {
+      activeSearchColumn = null;
+      activeSearchText = "";
+    } else {
+      activeSearchColumn = columnIndex;
+      activeSearchText = searchText.trim().toLowerCase();
+    }
+    renderPage(currentPage);
+  }
+
+  function applyHighlight() {
+    if (activeSearchColumn === null || activeSearchText === "") return;
+
+    const tableBody = document.getElementById("tableBody");
+    const rows = tableBody.getElementsByTagName("tr");
+
+    for (let row of rows) {
+      const cells = row.getElementsByTagName("td");
+      if (cells.length > activeSearchColumn) {
+        const cell = cells[activeSearchColumn];
+        const text = cell.textContent || cell.innerText;
+        if (text.toLowerCase().includes(activeSearchText)) {
+          cell.classList.add("highlight");
+        } else {
+          cell.classList.remove("highlight");
         }
       }
     }
-  </script>
+  }
+</script>
 </body>
 </html>
