@@ -163,17 +163,6 @@
     }
 
     .pagination {
-      background-color: #1f2937;
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      padding: 15px 20px;
-      font-size: 20px; 
-      cursor: pointer;
-    }
-
-    .pagination {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -385,7 +374,7 @@
 
     async function loadSheetData() {
       try {
-        const response = await fetch(`${GAS_URL}?action=getData`);
+        const response = await fetch(${GAS_URL}?action=getData);
         if (!response.ok) throw new Error('Network response was not ok');
         fullData = await response.json();
         if (fullData.length === 0) {
@@ -407,7 +396,7 @@
           doneByValue,
           breakdownValue
         });
-        const response = await fetch(`${GAS_URL}?${params.toString()}`);
+        const response = await fetch(${GAS_URL}?${params.toString()});
         if (!response.ok) throw new Error('Network response was not ok');
         const updatedRow = await response.json();
 
@@ -423,7 +412,7 @@
     }
 
     function renderPage(page) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+       window.scrollTo({ top: 0, behavior: 'smooth' });
       const tableBody = document.getElementById("tableBody");
       tableBody.innerHTML = "";
 
@@ -435,43 +424,43 @@
         const tr = document.createElement("tr");
 
         const schemaLink = row[2]
-          ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
+          ? <a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>
           : "";
 
-        tr.innerHTML = `
-          <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button">Открыть</button>` : "Нет схемы"}</td>
+        tr.innerHTML = 
+          <td data-label="ЗАДАЧА">${schemaLink ? <button class="schema-button">Открыть</button> : "Нет схемы"}</td>
           <td data-label="МАШИНА">${row[1]}</td>
           <td data-label="ОТКРЫТА">${row[3]}</td>
           <td data-label="ЗАКРЫТА">${row[4]}</td>
           ${row[6]
-            ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
-            : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
+            ? <td data-label="ПОЛОМКА">${row[6]}</td>
+            : <td data-label="ПОЛОМКА" id="iText_${row[0]}">
                 <select id="i_${row[0]}">
                   <option value="" selected disabled></option>
                   <option value="ЕСТЬ">ЕСТЬ</option>
                   <option value="НЕТ">НЕТ</option>
                 </select>
-              </td>`
+              </td>
           }
           ${row[5]
-            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
-            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
+            ? <td data-label="ВЫПОЛНИЛ">${row[5]}</td>
+            : <td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
                 <select id="g_${row[0]}">
                   <option value="" selected disabled></option>
                   <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
                   <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
                 </select>
-              </td>`
+              </td>
           }
           <td data-label="ОТПРАВИТЬ">
             <div class="buttons-row">
               ${schemaLink}
               ${row[5] && row[6]
-                ? `<span class="sent-text">Отправлено</span>`
-                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`
+                ? <span class="sent-text">Отправлено</span>
+                : <button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>
               }
             </div>
-          </td>`;
+          </td>;
 
         tableBody.appendChild(tr);
       });
@@ -522,9 +511,9 @@
     }
 
     function validateAndSend(rowNumber) {
-      const gSelect = document.getElementById(`g_${rowNumber}`);
-      const iSelect = document.getElementById(`i_${rowNumber}`);
-      const btn = document.getElementById(`btn_${rowNumber}`);
+      const gSelect = document.getElementById(g_${rowNumber});
+      const iSelect = document.getElementById(i_${rowNumber});
+      const btn = document.getElementById(btn_${rowNumber});
 
       if (!gSelect || !iSelect || !gSelect.value || !iSelect.value) {
         alert("Заполните все формы!");
@@ -533,7 +522,7 @@
 
       updateSheet(rowNumber, gSelect.value, iSelect.value);
 
-      btn.outerHTML = `<span class="sent-text">Отправлено</span>`;
+      btn.outerHTML = <span class="sent-text">Отправлено</span>;
     }
 
     function startColumnSearch(columnIndex) {
