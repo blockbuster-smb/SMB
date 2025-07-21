@@ -338,7 +338,7 @@
     </div>
   </header>
 
-  <div class="task-summary-card" id="taskSummaryCard" style="display: none;">
+  <div class="task-summary-card" id="taskSummaryCard">
     <div>Открытых задач</div>
     <div id="openTaskCount">0</div>
   </div>
@@ -563,7 +563,7 @@
       const card = document.getElementById("taskSummaryCard");
       const count = document.getElementById("openTaskCount");
       count.textContent = openCount;
-      card.style.display = openCount > 0 ? "flex" : "none";
+       card.style.display = "flex";
     }
   </script>
 </body>
