@@ -92,7 +92,7 @@ header {
   width: 96%;
   max-width: 1600px;
   margin: 20px auto 40px;
-  padding: 60px 30px 10px 5px; /* добавлен padding-top 60px */
+  padding: 60px 5px 10px 5px; /* добавлен padding-top 60px */
   box-sizing: border-box;
   background: transparent; /* убрали белый фон */
   border-radius: 0;
@@ -105,14 +105,17 @@ header {
       table-layout: fixed;
     }
 
-    th, td {
-      padding: 6px 8px;
-      text-align: center;
-      font-weight: 700;
-      word-wrap: break-word;
-      white-space: normal;
-      font-size: clamp(10px, 2.5vw, 12px);
-    }
+th, td {
+  padding: 6px 16px 6px 8px;
+  /*       ↑     ↑     ↑   ↑
+         top  right  bottom left */
+  text-align: center;
+  font-weight: 700;
+  word-wrap: break-word;
+  white-space: normal;
+  font-size: clamp(10px, 2.5vw, 12px);
+}
+
 
     thead th {
       background-color: #1a2f40;
