@@ -195,16 +195,18 @@
       user-select: none;
     }
 
-    .load-more-btn {
+    #pageNumbers button {
       background-color: #dc143c;
       color: white;
       font-weight: 700;
       border: none;
       border-radius: 6px;
-      padding: 10px 20px;
+      padding: 6px 10px;
       cursor: pointer;
-      margin: 20px auto;
-      display: block;
+    }
+
+    #pageNumbers button.active {
+      background-color: #1a2f40;
     }
 
     .highlight {
@@ -341,7 +343,7 @@
     <div id="openTaskCount">0</div>
   </div>
 
-  <div id="app-content">
+  <div id="app-content" style="display:none;">
     <table>
       <thead>
         <tr>
@@ -356,14 +358,19 @@
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
-    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Загрузить ещё</button>
+
+    <div class="pagination">
+      <button onclick="prevPage()" id="prevBtn" disabled>← Назад</button>
+      <div id="pageNumbers" style="display: flex; gap: 10px;"></div>
+      <button onclick="nextPage()" id="nextBtn">Вперёд →</button>
+    </div>
   </div>
 
   <script>
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec'; // замени на свой URL
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec';
 
     let fullData = [];
-    let start = 0;
+    let currentPage = 1;
     const rowsPerPage = 20;
     let activeSearchColumn = null;
     let activeSearchText = "";
@@ -374,85 +381,25 @@
     }
 
     window.onload = function () {
-      loadMore();  // загружаем первые 20 сразу
+      document.getElementById("app-content").style.display = "block";
+      loadSheetData();
     };
 
-    async function loadMore() {
-      const loadBtn = document.getElementById("loadMoreBtn");
-      loadBtn.disabled = true;
-      loadBtn.textContent = "Загрузка...";
+    async function loadSheetData() {
       try {
-        const response = await fetch(`${GAS_URL}?action=getData&start=${start}&limit=${rowsPerPage}`);
-        if (!response.ok) throw new Error('Ошибка сети');
-        const data = await response.json();
-
-        if (data.length === 0) {
-          loadBtn.style.display = "none";
-          if (start === 0) {
-            document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Нет задач</td></tr>";
-          }
+        const response = await fetch(`${GAS_URL}?action=getData`);
+        if (!response.ok) throw new Error('Network response was not ok');
+        fullData = await response.json();
+        updateOpenTaskCard(fullData);
+        if (fullData.length === 0) {
+          document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Нет задач</td></tr>";
           return;
         }
-
-        fullData = fullData.concat(data);
-        updateOpenTaskCard(fullData);
-        renderRows(data);
-
-        start += rowsPerPage;
-        loadBtn.disabled = false;
-        loadBtn.textContent = "Загрузить ещё";
-
+        renderPage(currentPage);
       } catch (e) {
+        document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Ошибка загрузки данных</td></tr>";
         console.error(e);
-        loadBtn.textContent = "Ошибка загрузки";
       }
-    }
-
-    function renderRows(rows) {
-      const tableBody = document.getElementById("tableBody");
-
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-        const schemaLink = row[2]
-          ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
-          : "";
-
-        tr.innerHTML = `
-          <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button" onclick="window.open('${row[2]}','_blank')">Открыть</button>` : "Нет схемы"}</td>
-          <td data-label="МАШИНА">${row[1]}</td>
-          <td data-label="ОТКРЫТА">${row[3]}</td>
-          <td data-label="ЗАКРЫТА">${row[4]}</td>
-          ${row[6]
-            ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
-            : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
-                <select id="i_${row[0]}">
-                  <option value="" selected disabled></option>
-                  <option value="ЕСТЬ">ЕСТЬ</option>
-                  <option value="НЕТ">НЕТ</option>
-                </select>
-              </td>`}
-          ${row[5]
-            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
-            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
-                <select id="g_${row[0]}">
-                  <option value="" selected disabled></option>
-                  <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
-                  <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
-                </select>
-              </td>`}
-          <td data-label="ОТПРАВИТЬ">
-            <div class="buttons-row">
-              ${schemaLink}
-              ${row[5] && row[6]
-                ? `<span class="sent-text">Отправлено</span>`
-                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`}
-            </div>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
-
-      applyHighlight();
     }
 
     async function updateSheet(rowNumber, doneByValue, breakdownValue) {
@@ -464,23 +411,73 @@
           breakdownValue
         });
         const response = await fetch(`${GAS_URL}?${params.toString()}`);
-        if (!response.ok) throw new Error('Ошибка сети');
+        if (!response.ok) throw new Error('Network response was not ok');
         const updatedRow = await response.json();
 
-        // Обновим fullData по rowNumber
-        const idx = fullData.findIndex(r => r[0] === rowNumber);
-        if (idx !== -1) fullData[idx] = updatedRow;
+        const index = fullData.findIndex(row => row[0] === rowNumber);
+        if (index !== -1) fullData[index] = updatedRow;
 
         updateOpenTaskCard(fullData);
-
-        // Перерисуем таблицу целиком, чтобы обновить строки (можно оптимизировать)
-        document.getElementById("tableBody").innerHTML = "";
-        renderRows(fullData);
-
+        renderPage(currentPage);
       } catch (e) {
         alert('Ошибка при обновлении данных');
         console.error(e);
       }
+    }
+
+    function renderPage(page) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      const start = (page - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const pageData = fullData.slice(start, end);
+
+      pageData.forEach((row) => {
+        const tr = document.createElement("tr");
+        const schemaLink = row[2]
+          ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
+          : "";
+
+        tr.innerHTML = `
+          <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button" onclick="window.open('${row[2]}','_blank')">Открыть</button>` : "Нет схемы"}</td>
+          <td data-label="МАШИНА">${row[1]}</td>
+          <td data-label="ОТКРЫТА">${row[3]}</td>
+          <td data-label="ЗАКРЫТА">${row[4]}</td>
+          ${row[5]
+            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
+            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
+                <select id="g_${row[0]}">
+                  <option value="" selected disabled></option>
+                  <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
+                  <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
+                </select>
+              </td>`}
+          ${row[6]
+            ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
+            : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
+                <select id="i_${row[0]}">
+                  <option value="" selected disabled></option>
+                  <option value="ЕСТЬ">ЕСТЬ</option>
+                  <option value="НЕТ">НЕТ</option>
+                </select>
+              </td>`}
+          <td data-label="ОТПРАВИТЬ">
+            <div class="buttons-row">
+              ${schemaLink}
+              ${row[5] && row[6]
+                ? `<span class="sent-text">Отправлено</span>`
+                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`}
+            </div>
+          </td>`;
+        tableBody.appendChild(tr);
+      });
+
+      applyHighlight();
+      renderPageNumbers();
+      document.getElementById("prevBtn").disabled = currentPage === 1;
+      document.getElementById("nextBtn").disabled = currentPage * rowsPerPage >= fullData.length;
     }
 
     function validateAndSend(rowNumber) {
@@ -502,20 +499,11 @@
       if (searchText === null || searchText.trim() === "") {
         activeSearchColumn = null;
         activeSearchText = "";
-        document.getElementById("tableBody").innerHTML = "";
-        renderRows(fullData);
-        return;
+      } else {
+        activeSearchColumn = columnIndex;
+        activeSearchText = searchText.trim().toLowerCase();
       }
-      activeSearchColumn = columnIndex;
-      activeSearchText = searchText.trim().toLowerCase();
-
-      const filtered = fullData.filter(row => {
-        if (!row[columnIndex + 1]) return false;
-        return row[columnIndex + 1].toLowerCase().includes(activeSearchText);
-      });
-
-      document.getElementById("tableBody").innerHTML = "";
-      renderRows(filtered);
+      renderPage(currentPage);
     }
 
     function applyHighlight() {
@@ -535,11 +523,47 @@
       }
     }
 
+    function renderPageNumbers() {
+      const pageContainer = document.getElementById("pageNumbers");
+      pageContainer.innerHTML = "";
+      const totalPages = Math.ceil(fullData.length / rowsPerPage);
+      let startPage = Math.max(currentPage - 2, 1);
+      let endPage = Math.min(startPage + 4, totalPages);
+      if (endPage - startPage < 4) {
+        startPage = Math.max(endPage - 4, 1);
+      }
+      for (let i = startPage; i <= endPage; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add("active");
+        btn.onclick = () => {
+          currentPage = i;
+          renderPage(currentPage);
+        };
+        pageContainer.appendChild(btn);
+      }
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    }
+
+    function nextPage() {
+      if (currentPage * rowsPerPage < fullData.length) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    }
+
     function updateOpenTaskCard(data) {
       const openCount = data.filter(row => !row[5] || !row[6]).length;
+      const card = document.getElementById("taskSummaryCard");
       const count = document.getElementById("openTaskCount");
       count.textContent = openCount;
-      document.getElementById("taskSummaryCard").style.display = openCount > 0 ? "flex" : "none";
+      card.style.display = "flex";
     }
   </script>
 </body>
