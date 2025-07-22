@@ -94,7 +94,7 @@
       justify-content: space-between;
       align-items: center;
       background-color: #fff;
-      color: №000;
+      color: #000;
       font-weight: 700;
       font-size: 16px;
       padding: 12px 16px;
@@ -195,18 +195,16 @@
       user-select: none;
     }
 
-    #pageNumbers button {
+    .load-more-btn {
       background-color: #dc143c;
       color: white;
       font-weight: 700;
       border: none;
       border-radius: 6px;
-      padding: 6px 10px;
+      padding: 10px 20px;
       cursor: pointer;
-    }
-
-    #pageNumbers button.active {
-      background-color: #1a2f40;
+      margin: 20px auto;
+      display: block;
     }
 
     .highlight {
@@ -343,7 +341,7 @@
     <div id="openTaskCount">0</div>
   </div>
 
-  <div id="app-content" style="display:none;">
+  <div id="app-content">
     <table>
       <thead>
         <tr>
@@ -358,140 +356,190 @@
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
-
-    <div class="pagination">
-      <button onclick="prevPage()" id="prevBtn" disabled>← Назад</button>
-      <div id="pageNumbers" style="display: flex; gap: 10px;"></div>
-      <button onclick="nextPage()" id="nextBtn">Вперёд →</button>
-    </div>
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Загрузить ещё</button>
   </div>
 
-<script>
-  const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec';
-  const rowsPerPage = 20;
-  let currentPage = 1;
-  let totalPages = 1;
-  let pageCache = {};
-  let activeSearchColumn = null;
-  let activeSearchText = "";
+  <script>
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwVIBmW6gYERv1i1UeywqDY01YOIkExPrH9EG_31w1a0u3BrNVUINT1cxGpznbgc5ws/exec'; // замени на свой URL
 
-  window.onload = function () {
-    document.getElementById("app-content").style.display = "block";
-    fetchPageData(currentPage);
-  };
+    let fullData = [];
+    let start = 0;
+    const rowsPerPage = 20;
+    let activeSearchColumn = null;
+    let activeSearchText = "";
 
-  async function fetchPageData(page) {
-    if (pageCache[page]) {
-      renderPage(pageCache[page]);
-      return;
+    function toggleDropdown() {
+      const menu = document.getElementById("dropdownMenu");
+      menu.style.display = (menu.style.display === "flex") ? "none" : "flex";
     }
 
-    try {
-      const response = await fetch(`${GAS_URL}?action=getPage&page=${page}`);
-      if (!response.ok) throw new Error('Ошибка загрузки страницы');
-      const { data, totalRows } = await response.json();
-      totalPages = Math.ceil(totalRows / rowsPerPage);
-      pageCache[page] = data;
-      renderPage(data);
-    } catch (e) {
-      console.error(e);
-      document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Ошибка загрузки данных</td></tr>";
+    window.onload = function () {
+      loadMore();  // загружаем первые 20 сразу
+    };
+
+    async function loadMore() {
+      const loadBtn = document.getElementById("loadMoreBtn");
+      loadBtn.disabled = true;
+      loadBtn.textContent = "Загрузка...";
+      try {
+        const response = await fetch(`${GAS_URL}?action=getData&start=${start}&limit=${rowsPerPage}`);
+        if (!response.ok) throw new Error('Ошибка сети');
+        const data = await response.json();
+
+        if (data.length === 0) {
+          loadBtn.style.display = "none";
+          if (start === 0) {
+            document.getElementById("tableBody").innerHTML = "<tr><td colspan='7'>Нет задач</td></tr>";
+          }
+          return;
+        }
+
+        fullData = fullData.concat(data);
+        updateOpenTaskCard(fullData);
+        renderRows(data);
+
+        start += rowsPerPage;
+        loadBtn.disabled = false;
+        loadBtn.textContent = "Загрузить ещё";
+
+      } catch (e) {
+        console.error(e);
+        loadBtn.textContent = "Ошибка загрузки";
+      }
     }
-  }
 
-  function renderPage(data) {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    const tableBody = document.getElementById("tableBody");
-    tableBody.innerHTML = "";
+    function renderRows(rows) {
+      const tableBody = document.getElementById("tableBody");
 
-    data.forEach((row) => {
-      const tr = document.createElement("tr");
-      const schemaLink = row[2]
-        ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
-        : "";
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        const schemaLink = row[2]
+          ? `<a href="${row[2]}" target="_blank" class="schema-button">Открыть</a>`
+          : "";
 
-      tr.innerHTML = `
-        <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button">Открыть</button>` : "Нет схемы"}</td>
-        <td data-label="МАШИНА">${row[1]}</td>
-        <td data-label="ОТКРЫТА">${row[3]}</td>
-        <td data-label="ЗАКРЫТА">${row[4]}</td>
-        ${row[6]
-          ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
-          : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
-              <select id="i_${row[0]}">
-                <option value="" selected disabled></option>
-                <option value="ЕСТЬ">ЕСТЬ</option>
-                <option value="НЕТ">НЕТ</option>
-              </select>
-            </td>`}
-        ${row[5]
-          ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
-          : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
-              <select id="g_${row[0]}">
-                <option value="" selected disabled></option>
-                <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
-                <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
-              </select>
-            </td>`}
-        <td data-label="ОТПРАВИТЬ">
-          <div class="buttons-row">
-            ${schemaLink}
-            ${row[5] && row[6]
-              ? `<span class="sent-text">Отправлено</span>`
-              : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`}
-          </div>
-        </td>`;
-      tableBody.appendChild(tr);
-    });
+        tr.innerHTML = `
+          <td data-label="ЗАДАЧА">${schemaLink ? `<button class="schema-button" onclick="window.open('${row[2]}','_blank')">Открыть</button>` : "Нет схемы"}</td>
+          <td data-label="МАШИНА">${row[1]}</td>
+          <td data-label="ОТКРЫТА">${row[3]}</td>
+          <td data-label="ЗАКРЫТА">${row[4]}</td>
+          ${row[6]
+            ? `<td data-label="ПОЛОМКА">${row[6]}</td>`
+            : `<td data-label="ПОЛОМКА" id="iText_${row[0]}">
+                <select id="i_${row[0]}">
+                  <option value="" selected disabled></option>
+                  <option value="ЕСТЬ">ЕСТЬ</option>
+                  <option value="НЕТ">НЕТ</option>
+                </select>
+              </td>`}
+          ${row[5]
+            ? `<td data-label="ВЫПОЛНИЛ">${row[5]}</td>`
+            : `<td data-label="ВЫПОЛНИЛ" id="gText_${row[0]}">
+                <select id="g_${row[0]}">
+                  <option value="" selected disabled></option>
+                  <option value="МЕХАНИК(1)">МЕХАНИК(1)</option>
+                  <option value="МЕХАНИК(2)">МЕХАНИК(2)</option>
+                </select>
+              </td>`}
+          <td data-label="ОТПРАВИТЬ">
+            <div class="buttons-row">
+              ${schemaLink}
+              ${row[5] && row[6]
+                ? `<span class="sent-text">Отправлено</span>`
+                : `<button id="btn_${row[0]}" onclick="validateAndSend(${row[0]});">Отправить</button>`}
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
 
-    applyHighlight();
-    renderPageNumbers();
-    document.getElementById("prevBtn").disabled = currentPage === 1;
-    document.getElementById("nextBtn").disabled = currentPage === totalPages;
-  }
-
-  function renderPageNumbers() {
-    const pageContainer = document.getElementById("pageNumbers");
-    pageContainer.innerHTML = "";
-    let startPage = Math.max(currentPage - 2, 1);
-    let endPage = Math.min(startPage + 4, totalPages);
-    if (endPage - startPage < 4) {
-      startPage = Math.max(endPage - 4, 1);
+      applyHighlight();
     }
-    for (let i = startPage; i <= endPage; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      if (i === currentPage) btn.classList.add("active");
-      btn.onclick = () => {
-        currentPage = i;
-        fetchPageData(currentPage);
-      };
-      pageContainer.appendChild(btn);
-    }
-  }
 
-  function prevPage() {
-    if (currentPage > 1) {
-      currentPage--;
-      fetchPageData(currentPage);
-    }
-  }
+    async function updateSheet(rowNumber, doneByValue, breakdownValue) {
+      try {
+        const params = new URLSearchParams({
+          action: 'update',
+          rowNumber,
+          doneByValue,
+          breakdownValue
+        });
+        const response = await fetch(`${GAS_URL}?${params.toString()}`);
+        if (!response.ok) throw new Error('Ошибка сети');
+        const updatedRow = await response.json();
 
-  function nextPage() {
-    if (currentPage < totalPages) {
-      currentPage++;
-      fetchPageData(currentPage);
-    }
-  }
+        // Обновим fullData по rowNumber
+        const idx = fullData.findIndex(r => r[0] === rowNumber);
+        if (idx !== -1) fullData[idx] = updatedRow;
 
-  // Оставшиеся функции (validateAndSend, applyHighlight, startColumnSearch) остаются без изменений
+        updateOpenTaskCard(fullData);
+
+        // Перерисуем таблицу целиком, чтобы обновить строки (можно оптимизировать)
+        document.getElementById("tableBody").innerHTML = "";
+        renderRows(fullData);
+
+      } catch (e) {
+        alert('Ошибка при обновлении данных');
+        console.error(e);
+      }
+    }
+
+    function validateAndSend(rowNumber) {
+      const gSelect = document.getElementById(`g_${rowNumber}`);
+      const iSelect = document.getElementById(`i_${rowNumber}`);
+      const btn = document.getElementById(`btn_${rowNumber}`);
+
+      if (!gSelect || !iSelect || !gSelect.value || !iSelect.value) {
+        alert("Заполните все формы!");
+        return;
+      }
+
+      updateSheet(rowNumber, gSelect.value, iSelect.value);
+      btn.outerHTML = `<span class="sent-text">Отправлено</span>`;
+    }
+
+    function startColumnSearch(columnIndex) {
+      const searchText = prompt("Введите текст для поиска:");
+      if (searchText === null || searchText.trim() === "") {
+        activeSearchColumn = null;
+        activeSearchText = "";
+        document.getElementById("tableBody").innerHTML = "";
+        renderRows(fullData);
+        return;
+      }
+      activeSearchColumn = columnIndex;
+      activeSearchText = searchText.trim().toLowerCase();
+
+      const filtered = fullData.filter(row => {
+        if (!row[columnIndex + 1]) return false;
+        return row[columnIndex + 1].toLowerCase().includes(activeSearchText);
+      });
+
+      document.getElementById("tableBody").innerHTML = "";
+      renderRows(filtered);
+    }
+
+    function applyHighlight() {
+      if (activeSearchColumn === null || activeSearchText === "") return;
+      const rows = document.getElementById("tableBody").getElementsByTagName("tr");
+      for (let row of rows) {
+        const cells = row.getElementsByTagName("td");
+        if (cells.length > activeSearchColumn) {
+          const cell = cells[activeSearchColumn];
+          const text = cell.textContent || cell.innerText;
+          if (text.toLowerCase().includes(activeSearchText)) {
+            cell.classList.add("highlight");
+          } else {
+            cell.classList.remove("highlight");
+          }
+        }
+      }
+    }
 
     function updateOpenTaskCard(data) {
       const openCount = data.filter(row => !row[5] || !row[6]).length;
-      const card = document.getElementById("taskSummaryCard");
       const count = document.getElementById("openTaskCount");
       count.textContent = openCount;
-       card.style.display = "flex";
+      document.getElementById("taskSummaryCard").style.display = openCount > 0 ? "flex" : "none";
     }
   </script>
 </body>
